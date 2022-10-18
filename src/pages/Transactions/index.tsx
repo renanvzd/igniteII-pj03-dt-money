@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Header } from "../../components/Header";
 import { Summary } from "../../components/Summary";
 import { SearchForm } from "./components/SearchForm";
+
 import { PriceHighlight, TransactionsContainer, TransactionsTable } from "./styles";
 
 interface Transaction {
@@ -20,6 +21,8 @@ export function Transactions() {
     const response = await fetch('http://localhost:3333/transactions')
     const data = await response.json()
     console.log(data)
+
+    setTransactions(data)
   }
 
   useEffect(() => {
