@@ -1,36 +1,55 @@
-import * as Dialog from '@radix-ui/react-dialog';
-import { ArrowCircleDown, ArrowCircleUp, X } from 'phosphor-react';
-import { useForm, Controller } from "react-hook-form"
-import * as z from 'zod';
+import * as Dialog from '@radix-ui/react-dialog'
+import { ArrowCircleDown, ArrowCircleUp, X } from 'phosphor-react'
+import { useForm, Controller } from 'react-hook-form'
+import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { CloseButton, Content, Overlay, TransactionType, TransactionTypeButton } from './styles';
+import {
+  CloseButton,
+  Content,
+  Overlay,
+  TransactionType,
+  TransactionTypeButton,
+} from './styles'
+import { useContext } from 'react'
+import { TransactionsContext } from '../../contexts/TransactionsContext'
 
 const newTransactionFormSchema = z.object({
   description: z.string(),
   price: z.number(),
   category: z.string(),
-  type: z.enum(['income', 'outcome'])    // referente ao campo nao nativo do HTML, que sera gerenciado pelo "control"
+  type: z.enum(['income', 'outcome']), // referente ao campo nao nativo do HTML, que sera gerenciado pelo "control"
 })
 
-type NewTransactionFormInputs = z.infer<typeof newTransactionFormSchema>;
+type NewTransactionFormInputs = z.infer<typeof newTransactionFormSchema>
 
 export function NewTransactionModal() {
+  const { createTransaction } = useContext(TransactionsContext)
+
   const {
-    control,    // utilizado qnd se deseja pegar dado do formulario que nao eh nativo do HTML Ex: <TransactionType>
+    control, // utilizado qnd se deseja pegar dado do formulario que nao eh nativo do HTML Ex: <TransactionType>
     register,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
+    reset,
   } = useForm<NewTransactionFormInputs>({
     resolver: zodResolver(newTransactionFormSchema),
     defaultValues: {
-      type: 'income'
-    }
+      type: 'income',
+    },
   })
 
   async function handleCreateNewTransaction(data: NewTransactionFormInputs) {
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log(data)
+    const { description, price, category, type } = data
+
+    await createTransaction({
+      description,
+      price,
+      category,
+      type,
+    })
+
+    reset()
   }
 
   return (
@@ -66,9 +85,13 @@ export function NewTransactionModal() {
           <Controller
             control={control}
             name="type"
-            render={({ field }) => {   // funcao que retorna qual eh o conteudo relacionado a esse campo type
+            render={({ field }) => {
+              // funcao que retorna qual eh o conteudo relacionado a esse campo type
               return (
-                <TransactionType onValueChange={field.onChange} value={field.value}>
+                <TransactionType
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
                   <TransactionTypeButton variant="income" value="income">
                     <ArrowCircleUp size={24} />
                     Income
@@ -87,9 +110,7 @@ export function NewTransactionModal() {
             Register
           </button>
         </form>
-
-
       </Content>
-    </Dialog.Portal >
+    </Dialog.Portal>
   )
 }

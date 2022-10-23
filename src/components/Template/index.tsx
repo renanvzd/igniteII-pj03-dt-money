@@ -1,7 +1,3 @@
 export function Template() {
-  return (
-    <div>
-
-    </div>
-  )
+  return <div></div>
 }
